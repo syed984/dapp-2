@@ -1,14 +1,19 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.9;
 
-//import "hardhat/console.sol";
-
 contract Assessment {
     address payable public owner;
     uint256 public balance;
+    uint256 public sipMonthlyAmount;
+    uint256 public lastSipTimestamp;
 
     event Deposit(uint256 amount);
     event Withdraw(uint256 amount);
+    event SipInvestment(uint256 amount);
+    event WithdrawSipFunds(uint256 amount);
+
+    // custom error
+    error InsufficientBalance(uint256 balance, uint256 withdrawAmount);
 
     constructor(uint initBalance) payable {
         owner = payable(msg.sender);
@@ -35,9 +40,6 @@ contract Assessment {
         emit Deposit(_amount);
     }
 
-    // custom error
-    error InsufficientBalance(uint256 balance, uint256 withdrawAmount);
-
     function withdraw(uint256 _withdrawAmount) public {
         require(msg.sender == owner, "You are not the owner of this account");
         uint _previousBalance = balance;
@@ -56,5 +58,38 @@ contract Assessment {
 
         // emit the event
         emit Withdraw(_withdrawAmount);
+    }
+
+    function setSipMonthlyAmount(uint256 _amount) external {
+        require(msg.sender == owner, "You are not the owner of this account");
+        sipMonthlyAmount = _amount;
+    }
+
+    function investSip() external {
+        require(msg.sender == owner, "You are not the owner of this account");
+        require(sipMonthlyAmount > 0, "SIP amount not set");
+
+        // Check if a month has passed since the last SIP investment
+        require(block.timestamp >= lastSipTimestamp + 30 days, "Wait for the next SIP cycle");
+
+        // Perform SIP investment
+        balance += sipMonthlyAmount;
+
+        // Update last SIP timestamp
+        lastSipTimestamp = block.timestamp;
+
+        // Emit the event
+        emit SipInvestment(sipMonthlyAmount);
+    }
+
+    function withdrawSipFunds() external {
+        require(msg.sender == owner, "You are not the owner of this account");
+        require(sipMonthlyAmount > 0, "SIP amount not set");
+
+        // Withdraw SIP funds
+        balance -= sipMonthlyAmount;
+
+        // Emit the event
+        emit WithdrawSipFunds(sipMonthlyAmount);
     }
 }
