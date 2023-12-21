@@ -1,4 +1,4 @@
-# Ethereum ATM DApp Readme
+# Ethereum ATM DApp 
 
 This repository contains a decentralized application (DApp) that simulates an Ethereum Automated Teller Machine (ATM) using the Ethereum blockchain and the React JavaScript library. The DApp allows users to connect their MetaMask wallet, authenticate themselves with a PIN, and perform transactions such as depositing and withdrawing Ethereum.
 
